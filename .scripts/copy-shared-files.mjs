@@ -41,14 +41,23 @@ const FILES = [
 // By default, zx logs all commands spawned
 $.verbose = false;
 let numChanged = 0;
+const checkForDirectories = await $`git status -s`;
+let newDirectory = false;
 for (let i = 0; i < FILES.length; i++) {
-  const check = await $`git diff --shortstat ${FILES[i]}`;
-  if (check.stdout) {
+  const checkForFiles = await $`git diff --shortstat ${FILES[i]}`;
+  if (checkForFiles.stdout) {
     numChanged++;
   }
 }
-if (numChanged == 0) {
-  process.stdout.write('No files were changed, exiting...');
+let results = checkForDirectories.stdout.split('??');
+results.every(entry => {
+  if (entry.charAt(entry.length-1) == '/') {
+    newDirectory = true;
+    return false;
+  }
+});
+if (numChanged == 0 || !newDirectory) {
+  process.stdout.write('No files were changed or no new directory detected, exiting...');
   process.exit(0);
 }
 let [answer] = await question(
