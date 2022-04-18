@@ -29,9 +29,27 @@ const POST_CREATE_EXCLUDE = [
   'activities-cancellation-heartbeating',
 ];
 
+const FILES = [
+  '.shared/tsconfig.json',
+  '.shared/.gitignore',
+  '.shared/.eslintrc.js',
+  '.shared/.post-create',
+  '.shared/.eslintignore',
+  '.shared/.npmrc',
+  '.shared/.nvmrc'
+];
 // By default, zx logs all commands spawned
 $.verbose = false;
-
+let numChanged = 0;
+for (let i = 0; i < FILES.length; i++) {
+  const check = await $`git diff --shortstat ${FILES[i]}`;
+  if (check.stdout) {
+    numChanged++;
+  }
+}
+if (numChanged == 0) {
+  throw new Error('No files have changed')
+}
 let [answer] = await question(
   `Running pre-commit hook.
 This will overwrite changes made to most config files in samples (like ${chalk.bold('hello-world/tsconfig.json')}).
