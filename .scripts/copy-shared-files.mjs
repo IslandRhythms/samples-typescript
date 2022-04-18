@@ -48,7 +48,8 @@ for (let i = 0; i < FILES.length; i++) {
   }
 }
 if (numChanged == 0) {
-  throw new Error('No files have changed')
+  process.stdout.write('No files were changed, exiting...');
+  process.exit(0);
 }
 let [answer] = await question(
   `Running pre-commit hook.
