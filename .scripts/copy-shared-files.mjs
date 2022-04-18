@@ -42,7 +42,6 @@ const FILES = [
 $.verbose = false;
 let numChanged = 0;
 const checkForDirectories = await $`git status -s`;
-let newDirectory = false;
 for (let i = 0; i < FILES.length; i++) {
   const checkForFiles = await $`git diff --shortstat ${FILES[i]}`;
   if (checkForFiles.stdout) {
@@ -50,12 +49,7 @@ for (let i = 0; i < FILES.length; i++) {
   }
 }
 let results = checkForDirectories.stdout.split('??');
-results.every(entry => {
-  if (entry.charAt(entry.length-1) == '/') {
-    newDirectory = true;
-    return false;
-  }
-});
+let newDirectory = results.some(entry =>  entry.charAt(entry.length-1) == '/');
 if (numChanged == 0 || !newDirectory) {
   process.stdout.write('No files were changed or no new directory detected, exiting...');
   process.exit(0);
