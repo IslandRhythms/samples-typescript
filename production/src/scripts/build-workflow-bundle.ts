@@ -6,11 +6,11 @@ async function bundle() {
   const { code } = await bundleWorkflowCode({
     workflowsPath: require.resolve('../workflows'),
   });
-  const bundlePath = path.join(__dirname, '../../workflow-bundle.js');
+  const codePath = path.join(__dirname, '../../workflow-bundle.js');
 
-  await writeFile(bundlePath, code);
+  await writeFile(codePath, code);
 
-  console.log(`Bundle written to ${bundlePath}`);
+  console.log(`Bundle written to ${codePath}`);
 }
 
 bundle().catch((err) => {

@@ -21,6 +21,7 @@ async function run(): Promise<void> {
   });
   await worker.run();
 }
+console.log('why');
 
 run().catch((err) => {
   console.error(err);

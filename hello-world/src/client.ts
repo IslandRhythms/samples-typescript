@@ -4,19 +4,22 @@ import { example } from './workflows';
 import { nanoid } from 'nanoid';
 
 async function run() {
-  const connection = new Connection({
-    // // Connect to localhost with default ConnectionOptions.
-    // // In production, pass options to the Connection constructor to configure TLS and other settings:
-    // address: 'foo.bar.tmprl.cloud', // as provisioned
-    // tls: {} // as provisioned
-  });
+  // Connect to the default Server location (localhost:7233)
+  const connection = await Connection.connect();
+  // In production, pass options to configure TLS and other settings:
+  // {
+  //   address: 'foo.bar.tmprl.cloud',
+  //   tls: {}
+  // }
 
-  const client = new WorkflowClient(connection.service, {
-    // namespace: 'default', // change if you have a different namespace
+  const client = new WorkflowClient({
+    connection,
+    // namespace: 'foo.bar', // connects to 'default' namespace if not specified
   });
 
   const handle = await client.start(example, {
-    args: ['Temporal'], // type inference works! args: [name: string]
+    // type inference works! args: [name: string]
+    args: ['Temporal'],
     taskQueue: 'hello-world',
     // in practice, use a meaningful business id, eg customerId or transactionId
     workflowId: 'workflow-' + nanoid(),
