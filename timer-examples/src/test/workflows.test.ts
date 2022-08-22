@@ -6,12 +6,14 @@ import { after, before, describe, it } from 'mocha';
 import { v4 as uuid } from 'uuid';
 import type { createActivities } from '../activities';
 import { processOrderWorkflow } from '../workflows';
+import { WorkflowCoverage } from '@temporalio/nyc-test-coverage';
 
 describe('countdownWorkflow', async function () {
   let env: TestWorkflowEnvironment;
 
   this.slow(10_000);
   this.timeout(20_000);
+  const workflowCoverage = new WorkflowCoverage();
 
   before(async function () {
     // Filter INFO log messages for clearer test output
@@ -21,6 +23,7 @@ describe('countdownWorkflow', async function () {
 
   after(async () => {
     await env.teardown();
+    workflowCoverage.mergeIntoGlobalCoverage();
   });
 
   it('sends reminder email if processing does not complete in time', async () => {
@@ -42,6 +45,10 @@ describe('countdownWorkflow', async function () {
       taskQueue: 'test',
       workflowsPath: require.resolve('../workflows'),
       activities,
+      interceptors: {
+        workflowModules: [workflowCoverage.interceptorModule],
+      },
+      sinks: workflowCoverage.sinks,
     });
     await worker.runUntil(
       env.workflowClient.execute(processOrderWorkflow, {
@@ -68,6 +75,10 @@ describe('countdownWorkflow', async function () {
       taskQueue: 'test',
       workflowsPath: require.resolve('../workflows'),
       activities,
+      interceptors: {
+        workflowModules: [workflowCoverage.interceptorModule],
+      },
+      sinks: workflowCoverage.sinks,
     });
     await worker.runUntil(
       env.workflowClient.execute(processOrderWorkflow, {
